@@ -48,13 +48,26 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/mfa/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/mfa/**").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/totp/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/totp/**").permitAll()
+
                         .requestMatchers("/", "/register", "/form-login", "/public").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
 
+                        .requestMatchers("/scope/email").hasAuthority("SCOPE_email")
+                        .requestMatchers("/scope/profile").hasAuthority("SCOPE_profile")
+
                         .requestMatchers("/api/secure").authenticated()
+                        .requestMatchers("/oauth2/secure").authenticated()
+                        .requestMatchers("/keycloak/**").authenticated()
                         .requestMatchers("/private").authenticated()
+
                         .anyRequest().authenticated()
                 )
 
@@ -71,6 +84,10 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")
                         .permitAll()
+                )
+
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> {})
                 )
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

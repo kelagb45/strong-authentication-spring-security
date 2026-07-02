@@ -1,4 +1,3 @@
-### Secure API with JWT
+### MFA Step 1: Password Login
 
-GET http://localhost:8080/api/secure
-Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJOS09OIiwiaWF0IjoxNzgyNDg3MDczLCJleHAiOjE3ODI0OTA2NzN9.sd1m4Ry4YJwa1usZb0ATEInNGPR-Oe90Ct7aButpgxbiuHi3AD7IBDx_P1pSAIG2
+POST http://localhost:8080/mfa/verify?username=NKON&otp=710645
