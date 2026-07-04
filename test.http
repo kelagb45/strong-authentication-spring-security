@@ -1,3 +1,19 @@
-### MFA Step 1: Password Login
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
 
-POST http://localhost:8080/mfa/verify?username=NKON&otp=710645
+{
+  "username": "auditadmin",
+  "password": "audit123"
+}
+
+### Refresh Access Token
+POST http://localhost:8080/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "9e59b7ea-887d-4bca-bc96-d40704447198"
+}
+
+### View Audit Logs
+GET http://localhost:8080/audit

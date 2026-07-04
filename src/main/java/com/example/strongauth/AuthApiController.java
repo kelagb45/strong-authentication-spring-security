@@ -10,11 +10,17 @@ public class AuthApiController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
+    private final AuditLogService auditLogService;
 
     public AuthApiController(AuthenticationManager authenticationManager,
-                             JwtUtil jwtUtil) {
+                             JwtUtil jwtUtil,
+                             RefreshTokenService refreshTokenService,
+                             AuditLogService auditLogService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
+        this.auditLogService = auditLogService;
     }
 
     @PostMapping("/login")
@@ -27,8 +33,26 @@ public class AuthApiController {
                 )
         );
 
-        String token = jwtUtil.generateToken(request.getUsername());
+        String accessToken = jwtUtil.generateToken(request.getUsername());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
 
-        return new AuthResponse(token);
+        auditLogService.log(request.getUsername(), "LOGIN_SUCCESS");
+
+        return new AuthResponse(accessToken, refreshToken.getToken());
+    }
+
+    @PostMapping("/refresh")
+    public AuthResponse refreshToken(@RequestBody RefreshTokenRequest request) {
+
+        RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(
+                request.getRefreshToken()
+        );
+
+        String username = refreshToken.getUser().getUsername();
+        String newAccessToken = jwtUtil.generateToken(username);
+
+        auditLogService.log(username, "REFRESH_TOKEN_USED");
+
+        return new AuthResponse(newAccessToken, refreshToken.getToken());
     }
 }

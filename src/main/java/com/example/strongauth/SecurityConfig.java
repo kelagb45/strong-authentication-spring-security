@@ -47,22 +47,34 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
 
+                        // Public authentication endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+
+                        // MFA
                         .requestMatchers(HttpMethod.GET, "/mfa/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/mfa/**").permitAll()
 
+                        // Google Authenticator
                         .requestMatchers(HttpMethod.GET, "/totp/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/totp/**").permitAll()
 
+                        // Public pages
                         .requestMatchers("/", "/register", "/form-login", "/public").permitAll()
 
+                        // Test Audit endpoint (temporary)
+                        .requestMatchers("/audit/**").permitAll()
+
+                        // Role-based endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
 
+                        // Keycloak scope endpoints
                         .requestMatchers("/scope/email").hasAuthority("SCOPE_email")
                         .requestMatchers("/scope/profile").hasAuthority("SCOPE_profile")
 
+                        // Protected endpoints
                         .requestMatchers("/api/secure").authenticated()
                         .requestMatchers("/oauth2/secure").authenticated()
                         .requestMatchers("/keycloak/**").authenticated()
@@ -90,7 +102,8 @@ public class SecurityConfig {
                         .jwt(jwt -> {})
                 )
 
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
